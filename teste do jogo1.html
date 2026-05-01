@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jogo Inclusivo MASTER</title>
+<style>
+body {
+  font-family: 'Comic Sans MS', Arial;
+  text-align: center;
+  background: linear-gradient(135deg, #ffecd2, #fcb69f);
+}
+
+h1 { font-size: 2.5em; }
+
+.character {
+  font-size: 4em;
+  animation: bounce 1s infinite alternate;
+}
+
+@keyframes bounce {
+  from { transform: translateY(0); }
+  to { transform: translateY(-10px); }
+}
+
+.controls button {
+  padding: 10px;
+  margin: 5px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+}
+
+.color-btn {
+  width: 120px;
+  height: 120px;
+  margin: 10px;
+  font-size: 2.5em;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.color-btn:hover { transform: scale(1.1); }
+
+.red { background: #ff4d4d; }
+.blue { background: #4da6ff; }
+.green { background: #66ff99; }
+.yellow { background: #ffff66; }
+
+#message { font-size: 1.6em; margin-top: 10px; }
+#score, #level { font-size: 1.3em; }
+#mode { font-size: 1.2em; margin-top: 5px; }
+
+</style>
+</head>
+<body>
+
+<h1>🌈 Jogo Inclusivo MASTER</h1>
+<div class="character" id="character">🐻</div>
+<p id="instruction">Escolha um modo!</p>
+
+<div class="controls">
+  <button onclick="startGame('diversao')">🎮 Diversão</button>
+  <button onclick="startGame('terapia')">🧠 Terapia</button>
+  <button onclick="toggleVoice()">🔊 Voz</button>
+</div>
+
+<div>
+  <button class="color-btn red" onclick="checkColor('vermelho')">🔴</button>
+  <button class="color-btn blue" onclick="checkColor('azul')">🔵</button>
+  <button class="color-btn green" onclick="checkColor('verde')">🟢</button>
+  <button class="color-btn yellow" onclick="checkColor('amarelo')">🟡</button>
+</div>
+
+<div id="message"></div>
+<div id="score">⭐ Pontos: 0</div>
+<div id="level">🏆 Nível: 1</div>
+<div id="mode"></div>
+
+<script>
+let currentColor = '';
+let score = 0;
+let level = 1;
+let voiceOn = true;
+let mode = 'diversao';
+
+const colors = ['vermelho','azul','verde','amarelo'];
+const characters = ['🐻','🐰','🐸','🐵','🦊','🐼'];
+
+function speak(text) {
+  if (!voiceOn) return;
+  const speech = new SpeechSynthesisUtterance(text);
+  speech.lang = 'pt-BR';
+  window.speechSynthesis.speak(speech);
+}
+
+function startGame(selectedMode) {
+  mode = selectedMode;
+  score = 0;
+  level = 1;
+  updateUI();
+  nextRound();
+}
+
+function nextRound() {
+  currentColor = colors[Math.floor(Math.random()*colors.length)];
+  changeCharacter();
+
+  if (mode === 'terapia') {
+    document.getElementById('instruction').textContent = 'Calma... escolha a cor 😊';
+    speak('Escolha a cor ' + currentColor);
+  } else {
+    document.getElementById('instruction').textContent = 'Rápido! Qual é? ⚡';
+    speak(currentColor);
+  }
+}
+
+function checkColor(color) {
+  if (!currentColor) return;
+
+  if (color === currentColor) {
+    score++;
+    if (score % 5 === 0) level++;
+    showMessage('🎉 Acertou!');
+    playSound(true);
+  } else {
+    showMessage(mode === 'terapia' ? 'Tudo bem, tente de novo 😊' : '❌ Errou!');
+    playSound(false);
+  }
+
+  updateUI();
+
+  let delay = mode === 'terapia' ? 2000 : Math.max(600, 1200 - level*80);
+  setTimeout(nextRound, delay);
+}
+
+function updateUI() {
+  document.getElementById('score').textContent = '⭐ Pontos: ' + score;
+  document.getElementById('level').textContent = '🏆 Nível: ' + level;
+  document.getElementById('mode').textContent = 'Modo: ' + (mode === 'terapia' ? '🧠 Terapia' : '🎮 Diversão');
+}
+
+function showMessage(msg) {
+  document.getElementById('message').textContent = msg;
+}
+
+function toggleVoice() {
+  voiceOn = !voiceOn;
+}
+
+function changeCharacter() {
+  const char = characters[Math.floor(Math.random()*characters.length)];
+  document.getElementById('character').textContent = char;
+}
+
+function playSound(correct) {
+  const audio = new Audio(correct
+    ? 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a73467.mp3'
+    : 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_5d0e7c2d6b.mp3');
+  audio.play();
+}
+
+// teclado
+window.addEventListener('keydown', (e) => {
+  if (e.key === '1') checkColor('vermelho');
+  if (e.key === '2') checkColor('azul');
+  if (e.key === '3') checkColor('verde');
+  if (e.key === '4') checkColor('amarelo');
+});
+
+</script>
+
+</body>
+</html>
+ b 
